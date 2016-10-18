@@ -185,6 +185,7 @@ class MeasurementInterface(object):
       kwargs['shell'] = True
     killed = False
     t0 = time.time()
+    #print(cmd)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                          preexec_fn=preexec_setpgid_setrlimit(memory_limit),
                          **kwargs)
