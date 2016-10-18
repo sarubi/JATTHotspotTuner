@@ -15,29 +15,36 @@ argparser.add_argument(
   help='command to compile to java byte code')
 argparser.add_argument('--java_run_command', default='java {flags} {source}')
 class JavaProgramTuner(JvmFlagsTunerInterface):
-    
+   # global count
+    #count = 0
+
     def __init__(self, *pargs, **kwargs):
         super(JavaProgramTuner, self).__init__(args, *pargs,
                                         **kwargs)
-        
+
     def execute_program(self):
         temp_metric=0
+        #global count
+        #count = count +1
+       # print (count)
         for i in range(0,int(args.iterations)):
+
             run_result = self.call_program(args.java_run_command.format(source=args.source,flags=self.flags))
             if run_result['stderr']:
                 print 'Error:',run_result['stderr']
                 return self.default_time*10
             else:      
                 temp_metric += run_result['time']
-        runtime = temp_metric/int(args.iterations) 
+        runtime = temp_metric/int(args.iterations)
         return runtime
     
     def get_default_time(self):
         self.call_program(args.bytecode_compile_template.format(source=args.source))
         self.flags = ''
-
+	print (args.java_run_command.format(source=args.source,flags=self.flags))
         self.default_time = self.execute_program()
         print 'Default Configuration Metric:',str(self.default_time)
+
         self.append_to_config_file('Default Configuration Metric:'+str(self.default_time))
         return float(self.default_time)
             
