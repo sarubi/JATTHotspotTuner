@@ -32,16 +32,18 @@ argparser.add_argument('--configfile', help='where the configurations will be wr
 class JvmFlagsTunerInterface(opentuner.measurement.MeasurementInterface):
     
     __metaclass__ = abc.ABCMeta
+    global count
+    count = 0
     
     def __init__(self, args, *pargs, **kwargs):
         super(JvmFlagsTunerInterface, self).__init__(program_name=args.source, *pargs,
                                         **kwargs)
 	print ('current path' + os.path.dirname(os.path.abspath(__file__)))
-	self.current_path = os.path.dirname(os.path.abspath(__file__))+'/'
+        self.current_path = os.path.dirname(os.path.abspath(__file__))+'/'
         self.args = args
         self.flags_folder = self.current_path+'Flags/'
-        self.configuration_file_folder = 'Configurations/'
-        self.tuner_config_file_folder='TunedConfiguration/'
+        self.configuration_file_folder = self.current_path+'Configurations/'
+        self.tuner_config_file_folder=self.current_path+'TunedConfiguration/'
 
 	if not os.path.exists(self.configuration_file_folder):
 	    os.makedirs(self.configuration_file_folder)
@@ -189,6 +191,7 @@ class JvmFlagsTunerInterface(opentuner.measurement.MeasurementInterface):
                 self.param_flags.append(self.deoptimization_param)
                 
             elif flag_type == 'gc':
+		print ('flagsfolder' + self.flags_folder)
                 self.gc = True
                 self.gc_select_flags = pd.read_csv(self.flags_folder+'GC/gc_select.csv').flagname 
                 self.bool_flags.append(self.gc_select_flags)
@@ -260,10 +263,10 @@ class JvmFlagsTunerInterface(opentuner.measurement.MeasurementInterface):
     
 
     def append_to_config_file(self,text):
-        path = self.tuner_config_file_folder+'/'+self.args.source+'.txt';
+        path = self.tuner_config_file_folder+'/'+self.args.configfile+'.txt';
         if not os.path.exists(path):
             file(path, 'w').close()
-        with open(self.tuner_config_file_folder+'/'+self.args.source+'.txt', "a") as config_file:
+        with open(self.tuner_config_file_folder+'/'+self.args.configfile+'.txt', "a") as config_file:
             config_file.write(text+'\n')
             
               
@@ -478,16 +481,23 @@ class JvmFlagsTunerInterface(opentuner.measurement.MeasurementInterface):
                 self.add_to_flags_bool(cfg, flag)
             for flag in self.temporary_param:
                 self.add_to_flags_param(cfg, flag,self.temporary_param )
-        
-        
+
+        global count
+        count = count +1
+        print (count)
         run_time=self.execute_program()
-        temp_improvement=float((self.default_metric-run_time)/self.default_metric)
+        #temp_improvement=float((self.default_metric-run_time)/self.default_metric)
+        temp_improvement=float(self.default_metric/run_time)
         if temp_improvement>= self.improvement:
             self.improvement=temp_improvement
             self.append_to_config_file(self.flags)
             self.append_to_config_file("Improvement: %s" %self.improvement)
+            self.append_to_config_file("Runtime %s" %run_time)
+            self.append_to_config_file("default_metric %s" %self.default_metric)
             self.append_to_config_file("Configuration Found At: %s" %datetime.datetime.now())
-            
+            self.append_to_config_file("    ")
+
+
         return Result(time=run_time)
     
     @abc.abstractmethod
