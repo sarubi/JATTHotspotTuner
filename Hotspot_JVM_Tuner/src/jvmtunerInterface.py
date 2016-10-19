@@ -484,7 +484,7 @@ class JvmFlagsTunerInterface(opentuner.measurement.MeasurementInterface):
 
         global count
         count = count +1
-        print (count)
+        #print (count)
         run_time=self.execute_program()
         #temp_improvement=float((self.default_metric-run_time)/self.default_metric)
         temp_improvement=float(self.default_metric/run_time)
