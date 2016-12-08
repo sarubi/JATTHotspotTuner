@@ -38,6 +38,9 @@ class JvmFlagsTunerInterface(opentuner.measurement.MeasurementInterface):
     def __init__(self, args, *pargs, **kwargs):
         super(JvmFlagsTunerInterface, self).__init__(program_name=args.source, *pargs,
                                         **kwargs)
+	self.initialization_error = 'Error occurred during initialization of VM'
+        self.shared_space_error= 'Allocated shared space'
+        self.warning_error='VM warning'
 	print ('current path' + os.path.dirname(os.path.abspath(__file__)))
         self.current_path = os.path.dirname(os.path.abspath(__file__))+'/'
         self.args = args
