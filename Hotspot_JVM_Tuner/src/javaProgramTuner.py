@@ -23,17 +23,23 @@ class JavaProgramTuner(JvmFlagsTunerInterface):
                                         **kwargs)
 
     def execute_program(self):
-        temp_metric=0
-        #global count
-        #count = count +1
-       # print (count)
+       temp_metric=0
         for i in range(0,int(args.iterations)):
-
-            run_result = self.call_program(args.java_run_command.format(source=args.source,flags=self.flags))
+            run_result = self.call_program(args.java_run_command.format(source=args.source,flags=self.flags),60)
+           
             if run_result['stderr']:
-                print 'Error:',run_result['stderr']
+                print 'Error std err:',run_result['stderr']
                 return self.default_time*10
-            else:      
+            elif self.initialization_error in run_result['stdout']:
+                print 'Error in stdout 1:',run_result['stdout']
+                return self.default_time*10
+            elif self.shared_space_error in run_result['stdout']:
+                print 'Error in stdout 2:',run_result['stdout']
+                return self.default_time*10
+            elif self.warning_error in run_result['stdout']:
+                print 'Error in std_out 3: ',run_result['stdout']
+                return self.default_metric*10
+            else:
                 temp_metric += run_result['time']
         runtime = temp_metric/int(args.iterations)
         return runtime
